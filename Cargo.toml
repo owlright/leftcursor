@@ -1,0 +1,13 @@
+[package]
+name = "leftcursor"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ico = "0.3.0"
+image = "0.25.0"
+
+[patch.crates-io]
+ico = { path = "third-party/rust-ico" }

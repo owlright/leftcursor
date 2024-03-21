@@ -1,0 +1,6 @@
+[submodule "resource/capitaine-cursors"]
+	path = resource/capitaine-cursors
+	url = https://github.com/keeferrourke/capitaine-cursors.git
+[submodule "third-party/rust-ico"]
+	path = third-party/rust-ico
+	url = https://github.com/mdsteele/rust-ico.git
