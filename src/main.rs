@@ -1,7 +1,8 @@
 use clap::Parser;
-use leftcursor::cursor::left_the_cursor;
+use leftcursor::cursor::{self, left_the_cursor};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::exit;
 
 #[derive(Parser)]
 #[command(name = "leftcursor")]
@@ -25,6 +26,8 @@ struct Cli {
 #[allow(unreachable_code)]
 #[allow(unused_variables)]
 fn main() {
+    cursor::generate_installinf();
+    exit(0);
     let cli = Cli::parse();
     let input_dir_name = cli.input_dir.unwrap_or("".to_string());
     let out_dir_name = cli.output_dir.unwrap_or("./left".to_string());

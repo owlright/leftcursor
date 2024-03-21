@@ -1,6 +1,6 @@
 use ico;
 use image::{imageops, ImageBuffer, Rgba};
-use std::{fs, path::Path};
+use std::{fs, io::Write, path::Path};
 
 pub fn left_the_cursor<P: AsRef<Path>>(cursor_filename: P, output_dir: P, prefix: &str) {
     let cursor_filename = cursor_filename.as_ref();
@@ -37,4 +37,13 @@ pub fn left_the_cursor<P: AsRef<Path>>(cursor_filename: P, output_dir: P, prefix
         let file = fs::File::create(filename).unwrap();
         lefticon_dir.write(file).unwrap();
     });
+}
+
+pub fn generate_installinf() {
+    let mut installinf = match fs::File::create("tmp/install.inf") {
+        Ok(f) => f,
+        Err(e) => panic!("couldn't create install.inf: {}", e),
+    };
+    let config = "[Version]\nsignature=\"$CHICAGO$\"";
+    installinf.write_all(config.as_bytes()).expect("couldn't write to install.inf");
 }
