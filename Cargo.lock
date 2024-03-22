@@ -481,9 +481,12 @@ checksum = "03087c2bad5e1034e8cace5926dec053fb3790248370865f5117a7d0213354c8"
 name = "leftcursor"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "clap",
  "ico",
  "image",
+ "riff",
+ "thiserror",
 ]
 
 [[package]]
@@ -831,6 +834,12 @@ checksum = "05aaa8004b64fd573fc9d002f4e632d51ad4f026c2b5ba95fcb6c2f32c2c47d8"
 dependencies = [
  "bytemuck",
 ]
+
+[[package]]
+name = "riff"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c601484456988d75017d86700d3743b949c21cdc7399f940c75e34680d185c5"
 
 [[package]]
 name = "scopeguard"
