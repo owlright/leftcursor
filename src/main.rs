@@ -1,5 +1,7 @@
 use clap::Parser;
-use leftcursor::cursor::left_the_cursor;
+mod cursor;
+mod ani;
+use crate::cursor::left_the_cursor;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -25,6 +27,10 @@ struct Cli {
 #[allow(unreachable_code)]
 #[allow(unused_variables)]
 fn main() {
+    let file = fs::File::open("resource/Windows-Cursor-Concept-v2.0/light/default/working.ani").unwrap();
+    let ani = ani::Ani::read(file).unwrap();
+
+    std::process::exit(0);
     let cli = Cli::parse();
     let input_dir_name = cli.input_dir.unwrap_or("".to_string());
     let out_dir_name = cli.output_dir.unwrap_or("./left".to_string());
