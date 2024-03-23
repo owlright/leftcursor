@@ -47,7 +47,7 @@ impl Ani {
         let chunk = riff::Chunk::read(&mut reader, 118)?;
         for child in chunk.iter(&mut reader) {
             if let Ok(chunk) = child {
-                println!("{:?}", chunk);
+                debug!(chunk); // Use the debug macro
             }
         }
 

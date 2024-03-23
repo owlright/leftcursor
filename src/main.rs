@@ -1,7 +1,5 @@
 use clap::Parser;
-mod cursor;
-mod ani;
-use crate::cursor::left_the_cursor;
+use leftcursor::{ani, cursor::left_the_cursor};
 use std::fs;
 use std::path::{Path, PathBuf};
 
