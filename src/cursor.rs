@@ -2,7 +2,7 @@ use ico;
 use image::{imageops, ImageBuffer, Rgba};
 use std::{fs, path::Path};
 
-pub fn left_the_cursor<P: AsRef<Path>>(cursor_filename: P) {
+pub fn left_the_cursor<P: AsRef<Path>>(cursor_filename: P, output_dir: P, prefix: &str) {
     let cursor_filename = cursor_filename.as_ref();
     let file = std::fs::File::open(cursor_filename.with_extension("cur")).unwrap();
     let icon_dir = ico::IconDir::read(file).unwrap();
@@ -28,9 +28,8 @@ pub fn left_the_cursor<P: AsRef<Path>>(cursor_filename: P) {
         let mut lefticon_dir = ico::IconDir::new(ico::ResourceType::Cursor);
 
         lefticon_dir.add_entry(ico::IconDirEntry::encode(&leftimg).unwrap());
-        let filename = Path::new(".")
-            .join("left")
-            .join(cursor_filename.file_name().unwrap());
+        let filename = Path::new(output_dir.as_ref())
+            .join(prefix.to_string() + cursor_filename.file_name().unwrap().to_str().unwrap());
         println!("{}", filename.display());
         if !filename.parent().is_none() {
             fs::create_dir_all(filename.parent().unwrap()).unwrap();
