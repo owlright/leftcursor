@@ -56,7 +56,19 @@ impl Ani {
             .map(|chunk| chunk.offset())
             .unwrap_or(0);
         reader.seek(io::SeekFrom::Start(icon_chunk_pos))?;
-        // RIFF_ID
+
+        let chunks = riff::Chunk::read(&mut reader, icon_chunk_pos)?
+            .iter(&mut reader)
+            .filter_map(|child| child.ok())
+            .collect::<Vec<_>>();
+        for chunk in chunks {
+            // let mut buffer = vec![0; chunk.len() as usize];
+            reader.seek(io::SeekFrom::Start(chunk.offset()))?;
+            // reader.read_exact(&mut buffer)?;
+            let icon = IconDir::read(&mut reader)?;
+            println!("{:?}", icon.resource_type());
+        }
+
         Ok(Self::new())
     }
 
