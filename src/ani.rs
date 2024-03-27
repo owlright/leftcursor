@@ -42,24 +42,25 @@ impl AniHeader {
         Self::default()
     }
 }
+const fn chunk_id(value: &[u8; 4]) -> ChunkId {
+    ChunkId { value: *value }
+}
+
 impl Ani {
     pub fn read<R: Read + Seek>(mut reader: R) -> io::Result<Self> {
-        let chunk = riff::Chunk::read(&mut reader, 118)?;
-        for child in chunk.iter(&mut reader) {
-            if let Ok(chunk) = child {
-                debug!(chunk); // Use the debug macro
-            }
-        }
-
+        let icon_chunk_pos = riff::Chunk::read(&mut reader, 0)?
+            .iter(&mut reader)
+            .filter_map(|child| child.ok())
+            .filter(|chunk| chunk.id() == chunk_id(b"list") || chunk.id() == chunk_id(b"LIST"))
+            .max_by_key(|chunk| chunk.len())
+            .map(|chunk| chunk.offset())
+            .unwrap_or(0);
+        reader.seek(io::SeekFrom::Start(icon_chunk_pos))?;
         // RIFF_ID
         Ok(Self::new())
     }
 
     pub fn encode<T: Seek + Write>(&self, mut writer: T) -> Result<u64> {
-        const fn chunk_id(value: &[u8; 4]) -> ChunkId {
-            ChunkId { value: *value }
-        }
-
         let contents = ChunkContents::Children(
             RIFF_ID.clone(),
             chunk_id(b"ACON"),
