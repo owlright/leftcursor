@@ -18,8 +18,9 @@ pub struct Ani {
     pub frames: Vec<IconDir>,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct AniHeader {
+    pub header_size: u32,
     /// The number of stored frames in this animation.
     pub num_frames: u32,
     /// The number of steps in this animation. Since the `seq` chunk is not implemented, it should
@@ -29,8 +30,11 @@ pub struct AniHeader {
     pub width: u32,
     /// The height.
     pub height: u32,
+    pub bit_count: u32,
+    pub num_planes: u32,
     /// The number of jiffies (1/60 sec) that each frame displays.
     pub frame_rate: u32,
+    pub flags: u32,
 }
 impl Ani {
     pub fn new() -> Self {
@@ -48,6 +52,37 @@ const fn chunk_id(value: &[u8; 4]) -> ChunkId {
 
 impl Ani {
     pub fn read<R: Read + Seek>(mut reader: R) -> io::Result<Self> {
+        /* ------------------------------ for debugging ----------------------------- */
+        // ani file structure see: https://www.daubnet.com/en/file-format-ani
+        let ahih_header_chunk = riff::Chunk::read(&mut reader, 0)?
+            .iter(&mut reader)
+            .find(|child| {
+                if let Ok(chunk) = child {
+                    chunk.id() == chunk_id(b"anih")
+                } else {
+                    false
+                }
+            })
+            .map(|chunk| chunk.expect("chunk not valid"))
+            .expect("anih chunk not found");
+        reader.seek(io::SeekFrom::Start(ahih_header_chunk.offset()))?;
+        let mut buffer = vec![0; ahih_header_chunk.len() as usize];
+        //             reader.seek(io::SeekFrom::Start(chunk.offset())).unwrap();
+        reader.read_exact(&mut buffer).unwrap();
+        let mut cursor = io::Cursor::new(buffer);
+        let header = AniHeader {
+            header_size: cursor.read_u32::<LE>().unwrap(),
+            num_frames: cursor.read_u32::<LE>().unwrap(),
+            num_steps: cursor.read_u32::<LE>().unwrap(),
+            width: cursor.read_u32::<LE>().unwrap(),
+            height: cursor.read_u32::<LE>().unwrap(),
+            bit_count: cursor.read_u32::<LE>().unwrap(),
+            num_planes: cursor.read_u32::<LE>().unwrap(),
+            frame_rate: cursor.read_u32::<LE>().unwrap(),
+            flags: cursor.read_u32::<LE>().unwrap(),
+        };
+        println!("{:?}", header);
+        /* -------------------------------------------------------------------------- */
         let icon_chunk_pos = riff::Chunk::read(&mut reader, 0)?
             .iter(&mut reader)
             .filter_map(|child| child.ok())
@@ -62,11 +97,12 @@ impl Ani {
             .filter_map(|child| child.ok())
             .collect::<Vec<_>>();
         for chunk in chunks {
-            // let mut buffer = vec![0; chunk.len() as usize];
+            let mut buffer = vec![0; chunk.len() as usize];
             reader.seek(io::SeekFrom::Start(chunk.offset()))?;
-            // reader.read_exact(&mut buffer)?;
-            let icon = IconDir::read(&mut reader)?;
-            println!("{:?}", icon.resource_type());
+            reader.read_exact(&mut buffer)?;
+            println!();
+            // let icon = IconDir::read(&mut reader)?;
+            // println!("{:?}", icon.resource_type());
         }
 
         Ok(Self::new())
