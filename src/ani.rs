@@ -97,14 +97,22 @@ impl Ani {
             .filter_map(|child| child.ok())
             .collect::<Vec<_>>();
         for chunk in chunks {
-            let mut buffer = vec![0; chunk.len() as usize];
-            reader.seek(io::SeekFrom::Start(chunk.offset()))?;
-            reader.read_exact(&mut buffer)?;
-            println!();
-            // let icon = IconDir::read(&mut reader)?;
-            // println!("{:?}", icon.resource_type());
-        }
+            // let mut tmpbuf = vec![0; chunk.len() as usize];
+            // reader.seek(io::SeekFrom::Start(chunk.offset()+7))?;
+            // reader.read_exact(&mut tmpbuf).unwrap();
+            reader.seek(io::SeekFrom::Start(chunk.offset()+7))?;
+            let icon_dir = IconDir::read(&mut reader)?;
 
+            icon_dir.entries().iter().for_each(|entry| {
+                let iconw = entry.width();
+                let iconh = entry.height();
+                println!("icon size: {}x{}", iconw, iconh);
+                let icon = entry.decode().unwrap();
+                let (curx, cury) = icon.cursor_hotspot().unwrap();
+                println!("cursor pos: {:?}", (curx, cury));
+                // println!("{:?}", icon.resource_type());
+            });
+        }
         Ok(Self::new())
     }
 
